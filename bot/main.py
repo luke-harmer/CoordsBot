@@ -1,6 +1,7 @@
 import os
 
 import discord
+from discord import Color
 from discord.ext import commands
 from sqlalchemy import create_engine
 from sqlalchemy import Column, Integer, String, ForeignKey
@@ -34,6 +35,16 @@ class Alliance(Base):
             text += "\n    {}".format(member.name)
         return text
 
+    def as_embed(self):
+        embed = discord.Embed(title="**{}**".format(self.name), description="\u200b", color=Color.dark_green())
+        text = ""
+        if not self.members or self.members == []:
+            text += "\n**None**"
+        for member in self.members:
+            text += "\n{}".format(member.name)
+        embed.add_field(name="Members", value=text, inline=False)
+        return embed
+
 
 class Player(Base):
     __tablename__ = 'players'
@@ -56,6 +67,20 @@ class Player(Base):
             text += "\n    {}".format(planet)
         return text
 
+    def as_embed(self):
+        embed = discord.Embed(title="**{}**".format(self.name), description="\u200b", color=Color.dark_red())
+        if self.alliance:
+            embed.add_field(name="Alliance", value=self.alliance.name, inline=True)
+        if self.wsa:
+            embed.add_field(name="WSA:", value=self.wsa, inline=True)
+        text = ""
+        if not self.planets or self.planets == []:
+            text += "\n**None**"
+        for planet in self.planets:
+            text += "\n{}".format(planet)
+        embed.add_field(name="Planets", value=text, inline=False)
+        return embed
+
 
 class Planet(Base):
     __tablename__ = 'planets'
@@ -70,7 +95,7 @@ class Planet(Base):
     def __str__(self):
         text = self.nice_coords
         if self.moon:
-            text += ", moon: {}".format(self.moon)
+            text += " - Moon: {}".format(self.moon)
         return text
 
 
@@ -148,7 +173,7 @@ async def info(ctx):
              description='Test command description',
              aliases=['test1', 'test2'])
 async def test(ctx):
-    response = 'Test response, stop bothering'
+    response = '```Test response, stop bothering```'
     await ctx.send(response)
 
 
@@ -168,7 +193,7 @@ async def add(ctx, playername: str, galaxy: int, system: int, planet: int, moon:
     session.add(player)
     session.add(planet_)
     session.commit()
-    response = 'Added planet {} to {} planets'.format(planet_, playername)
+    response = '```Added planet {} to {} planets```'.format(planet_, playername)
     await ctx.send(response) 
 
 
@@ -182,11 +207,11 @@ async def delete(ctx, playername: str, galaxy: int, system: int, planet: int):
     player = getPlayer(playername)
     planet_ = getPlanet(galaxy, system, planet)
     if planet_ in player.planets:
-        response = 'Deleted planet {} in {} planets'.format(planet_, playername)
+        response = '```Deleted planet {} in {} planets```'.format(planet_, playername)
         session.delete(planet_)
         session.commit()
     else:
-        response = "{} didn't have planet {}".format(playername, planet_)
+        response = "```{} didn't have planet {}```".format(playername, planet_)
     await ctx.send(response) 
 
 
@@ -200,7 +225,7 @@ async def get(ctx, playername):
     playername = playername.lower()
     playername = playername.lower()
     player = getPlayer(playername)
-    await ctx.send(player.__str__())
+    await ctx.send(embed=player.as_embed())
 
 
 @bot.command(name='alliance',
@@ -218,7 +243,7 @@ async def alliance(ctx, playername: str, alliance_name: str):
     session.add(player)
     session.add(alliance_)
     session.commit()
-    response = "Updated alliance of {}".format(playername)
+    response = "```Updated alliance of {}```".format(playername)
     await ctx.send(response)
 
 
@@ -231,7 +256,7 @@ async def alliance(ctx, playername: str, alliance_name: str):
 async def members(ctx, alliance_name: str):
     alliance_name = alliance_name.lower()
     alliance_ = getAlliance(alliance_name)
-    await ctx.send(alliance_.__str__())
+    await ctx.send(embed=alliance_.as_embed())
 
 
 @bot.command(name='wsa',
@@ -247,7 +272,7 @@ async def wsa(ctx, playername: str, w: str, s: str, a: str):
     player.wsa = wsa_text
     session.add(player)
     session.commit()
-    response = "Updated wsa of " + playername
+    response = "```Updated wsa of {}```".format(playername)
     await ctx.send(response)
     
 
