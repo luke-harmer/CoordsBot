@@ -159,11 +159,12 @@ async def on_ready():
 async def info(ctx):
     player_count = session.query(Player).count()
     planet_count = session.query(Planet).count()
-    embed = discord.Embed(title="CoordsBot", description="A bot, not very imagining today", color=0xeee657)
+    embed = discord.Embed(title="CoordsBot",
+                          description="A bot for storing and retrieving game data",
+                          color=Color.dark_gold())
     embed.add_field(name="Author", value="Caerisse")
     embed.add_field(name="Saved players count", value=str(player_count))
     embed.add_field(name="Saved planets count", value=str(planet_count))
-    embed.add_field(name="Today's directive", value="All hail the golden piggy god")
     await ctx.send(embed=embed)
 
 
