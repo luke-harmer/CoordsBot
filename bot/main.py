@@ -48,7 +48,7 @@ class Player(Base):
     def __str__(self):
         text = "Player: '{}'".format(self.name)
         text += "\n  Alliance: '{}'".format(self.alliance.name)
-        text += "\n  WSA: {}".format(self.wsa)
+        text += "\n  WSA: {}".format(self.wsa) if self.wsa else ""
         text += "\n  Planets:"
         if not self.planets or self.planets == []:
             text += "\n    None"
@@ -164,7 +164,7 @@ async def add(ctx, playername: str, galaxy: int, system: int, planet: int, moon:
     playername = playername.lower()
     player = getPlayer(playername)
     planet_ = getPlanet(galaxy, system, planet, moon)
-    player.planets.add(planet_)
+    planet_.player = player
     session.add(player)
     session.add(planet_)
     session.commit()
