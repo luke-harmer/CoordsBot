@@ -178,6 +178,15 @@ async def test(ctx):
     await ctx.send(response)
 
 
+@bot.command(name='link',
+             brief='https://coordsbot.herokuapp.com/',
+             help='follow the link to start the bot again',
+             description='link to heroku app')
+async def link(ctx):
+    response = '```https://coordsbot.herokuapp.com/```'
+    await ctx.send(response)
+
+
 @bot.command(name='add',
              brief='Add planets to database',
              help='PlayerName Galaxy System Planet and MoonSize must have a space between them'
