@@ -47,7 +47,7 @@ class Player(Base):
 
     def __str__(self):
         text = "Player: '{}'".format(self.name)
-        text += "\n  Alliance: '{}'".format(self.alliance.name)
+        text += "\n  Alliance: '{}'".format(self.alliance.name) if self.alliance else ""
         text += "\n  WSA: {}".format(self.wsa) if self.wsa else ""
         text += "\n  Planets:"
         if not self.planets or self.planets == []:
