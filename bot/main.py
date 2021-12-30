@@ -15,7 +15,7 @@ from sqlalchemy.ext.declarative import declarative_base
 
 
 # Database configuration
-engine = create_engine(URI)
+engine = create_engine(uri)
 Base = declarative_base()
 Session = sessionmaker(bind=engine)
 session = Session()
