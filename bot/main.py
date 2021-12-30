@@ -1,5 +1,9 @@
 import os
+import re
 
+uri = os.getenv("DATABASE_URL")
+if uri.startswith("postgres://"):
+    uri = uri.replace("postgres://", "postgresql://", 1)
 import discord
 from discord import Color
 from discord.ext import commands
@@ -11,8 +15,7 @@ from sqlalchemy.ext.declarative import declarative_base
 
 
 # Database configuration
-DATABASE_URL = os.environ['DATABASE_URL']
-engine = create_engine(DATABASE_URL)
+engine = create_engine(URI)
 Base = declarative_base()
 Session = sessionmaker(bind=engine)
 session = Session()
