@@ -6,6 +6,7 @@ if uri.startswith("postgres://"):
     uri = uri.replace("postgres://", "postgresql://", 1)
 import discord
 from discord import Color
+from discord_slash import SlashCommand
 from discord.ext import commands
 from sqlalchemy import create_engine
 from sqlalchemy import Column, Integer, String, ForeignKey
@@ -146,6 +147,7 @@ def getPlanet(galaxy: int, system: int, planet: int, moon: int = None):
 # Bot config
 token = os.getenv('DISCORD_TOKEN')
 bot = commands.Bot(command_prefix='!', case_insensitive=True)
+slash = SlashCommand(bot, sync_commands=True)
 bot.load_extension("cogs.error_handler")
 
 
@@ -159,6 +161,7 @@ async def on_ready():
 
 
 @bot.command(name='info', brief='Info about the bot')
+@slash.slash(name='info', brief='Info about the bot')
 async def info(ctx):
     player_count = session.query(Player).count()
     planet_count = session.query(Planet).count()
@@ -176,6 +179,11 @@ async def info(ctx):
              help='Test help message',
              description='Test command description',
              aliases=['test1', 'test2'])
+@slash.slash(name='test',
+             brief='Test brief',
+             help='Test help message',
+             description='Test command description',
+             aliases=['test1', 'test2'])
 async def test(ctx):
     response = '```Test response, stop bothering```'
     await ctx.send(response)
@@ -185,12 +193,24 @@ async def test(ctx):
              brief='https://coordsbot.herokuapp.com/',
              help='follow the link to start the bot again',
              description='link to heroku app')
+@slash.slash(name='link',
+             brief='https://coordsbot.herokuapp.com/',
+             help='follow the link to start the bot again',
+             description='link to heroku app')
 async def link(ctx):
     response = '```https://coordsbot.herokuapp.com/```'
     await ctx.send(response)
 
 
 @bot.command(name='add',
+             brief='Add planets to database',
+             help='PlayerName Galaxy System Planet and MoonSize must have a space between them'
+                  '\nMoonSize can be omitted'
+                  '\nCan be used to add MoonSize to an already saved planet without that information',
+             description='Add or update planets to database under a player name',
+             aliases=['post', 'save', 'update'],
+             usage='playername 2 123 5 9400')
+@slash.slash(name='add',
              brief='Add planets to database',
              help='PlayerName Galaxy System Planet and MoonSize must have a space between them'
                   '\nMoonSize can be omitted'
@@ -215,6 +235,11 @@ async def add(ctx, playername: str, galaxy: int, system: int, planet: int, moon:
              help='PlayerName Galaxy System and Planet must have a space between them',
              description='Delete a planet of a given player',
              usage='playername 2 123 5')
+@slash.slash(name='delete',
+             brief='Delete planets from database',
+             help='PlayerName Galaxy System and Planet must have a space between them',
+             description='Delete a planet of a given player',
+             usage='playername 2 123 5')
 async def delete(ctx, playername: str, galaxy: int, system: int, planet: int):
     playername = playername.lower()
     player = getPlayer(playername)
@@ -234,6 +259,12 @@ async def delete(ctx, playername: str, galaxy: int, system: int, planet: int):
              description='Display all data of a player',
              aliases=['coords', 'view'],
              usage='playername')
+@slash.slash(name='get',
+             brief='Display all data of a player',
+             help='Retrieves all the saved information of the given player name',
+             description='Display all data of a player',
+             aliases=['coords', 'view'],
+             usage='playername')
 async def get(ctx, playername):
     playername = playername.lower()
     playername = playername.lower()
@@ -242,6 +273,12 @@ async def get(ctx, playername):
 
 
 @bot.command(name='alliance',
+             brief='Associates a player to an alliance',
+             help='Be careful of typing the alliance name correctly for better results in the members command',
+             description='Associates a player to an alliance',
+             aliases=['ally', 'alli'],
+             usage='playername alliance_name')
+@slash.slash(name='alliance',
              brief='Associates a player to an alliance',
              help='Be careful of typing the alliance name correctly for better results in the members command',
              description='Associates a player to an alliance',
@@ -266,6 +303,12 @@ async def alliance(ctx, playername: str, alliance_name: str):
              description='Displays all members of an alliance',
              aliases=['who', 'list'],
              usage='alliance_name')
+@slash.slash(name='members',
+             brief='Displays all members of an alliance',
+             help='',
+             description='Displays all members of an alliance',
+             aliases=['who', 'list'],
+             usage='alliance_name')
 async def members(ctx, alliance_name: str):
     alliance_name = alliance_name.lower()
     alliance_ = getAlliance(alliance_name)
@@ -273,6 +316,12 @@ async def members(ctx, alliance_name: str):
 
 
 @bot.command(name='wsa',
+             brief='Saves player techs',
+             help='playername w s a must have a space between them',
+             description='Saves player techs in order weapons, shields, armor',
+             aliases=['techs', 'tech'],
+             usage='playername 1 2 3')
+@slash.slash(name='wsa',
              brief='Saves player techs',
              help='playername w s a must have a space between them',
              description='Saves player techs in order weapons, shields, armor',
